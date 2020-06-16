@@ -1,5 +1,5 @@
 ////
-This guide is maintained in the main {ProductName} repository
+This guide is maintained in the main Quarkus repository
 and pull requests should be submitted there:
 https://github.com/quarkusio/quarkus/tree/master/docs/src/main/asciidoc
 ////
@@ -53,7 +53,7 @@ The Hibernate ORM with Panache extension contains the following classes:
 * `PanacheRepositoryBase`
 * `PanacheEntity`
 
-The {ProductName} Panache JPA extension eliminates the following Hiberante ORM issues:
+The {ProductName} Panache JPA extension eliminates the following Hibernate ORM issues:
 
 * *Duplicate ID logic*
 +
@@ -816,9 +816,9 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 
 @RegisterForReflection
 public class PersonName {
-    public final String name; // <2>
+    public final String name;
 
-    public PersonName(String name){ // <3>
+    public PersonName(String name){
         this.name = name;
     }
 }
@@ -852,18 +852,16 @@ NOTE: If you want to check optimistic locking failures, perform object validatio
 
 To create a transaction, add the `@Transactional` annotation to your method at application entry point boundaries such as REST endpoint controllers.
 
-The following example demonstrates the use of the flush method to allow a specific action in case of a `PersistenceException` error:
+The following example demonstrates the use of the flush method to allow a specific action in case of a `PersistenceException` error. This example uses the `persistAndFlush()` shorthand method on a Panache repository to persist to the database then flush the changes. The data is saved to disk in case of an error: /
 [source,java]
 ----
 @Transactional
 public void create(Parameter parameter){
     try {
-        //The following code uses the persistAndFlush() shorthand method on a Panache repository to persist to the database then flush the changes:
         return parameterRepository.persistAndFlush(parameter);
     }
     catch(PersistenceException pe){
         LOG.error("Unable to create the parameter", pe);
-        //The following code saves the data to disk in case of an error:
         diskPersister.save(parameter);
     }
 }
@@ -951,10 +949,8 @@ public class PersonRepository implements PanacheRepositoryBase<Person,Integer> {
 ----
 ====
 
-
-
 == Defining entities in external projects or JAR files
-//Added content from https://{ProductName}.io/guides/cdi-reference#how-to-generate-a-jandex-index. This module could be shared.
+//Added content from https://quarkus.io/guides/cdi-reference#how-to-generate-a-jandex-index. This module could be shared.
 
 Hibernate ORM with Panache relies on Java `bytecode` enhancements that are added to your entities at compile time. If you define your entities in the project where you build your {ProductName} application, the  `bytecode` enhancements are added correctly. If the entities come from external projects or JAR files, use Jandex to index your JAR file to ensure that it is treated like a {ProductName} application library. Doing this enables {ProductName} to index and enhance your entities as if they were inside the current project.
 
