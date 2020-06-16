@@ -621,13 +621,6 @@ livingPersons.page(Page.ofSize(25));
 
 
 * Retrieve the first page:
-** Active record pattern:
-+
-[source,java]
-----
-List<Person> firstPage = livingPersons.list();
-----
-** Repository pattern:
 +
 [source,java]
 ----
