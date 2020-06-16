@@ -91,6 +91,7 @@ You can use the Panache active record pattern with the `PanacheEntity` class to 
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-hibernate-orm-panache</artifactId>
     </dependency>
+</dependencies>
 ----
 
 +
@@ -132,7 +133,7 @@ public class Person extends PanacheEntity {
 
     @Transient
     public Status status;
-}
+
     public String getName(){
         return name.toUpperCase();
     }
@@ -168,6 +169,139 @@ public class Person extends PanacheEntity {
 ----
 
 
+
+
+=== Pananche active record pattern common operations
+This section lists common Panache active record pattern operations. These examples use a `Person` entity created from the `PanacheEntity` class.
+
+* Create a record:
++
+[source,java]
+----
+Person person = new Person();
+person.name = "Stef";
+person.birth = LocalDate.of(1910, Month.FEBRUARY, 1);
+person.status = Status.Alive;
+----
+
+* Persist an entity:
++
+[source,java]
+----
+person.persist();
+----
+
++
+NOTE: After an entity is persisted, you do not need to explicitly save your entity. All changes are automatically persisted on transaction commit.
+
+* Verify that an entity is persisted:
++
+[source,java]
+----
+if(person.isPersistent())
+----
+
+* Delete an entity:
++
+[source,java]
+----
+person.delete();
+----
+
+
+
+* Retrieve a list of all `Person` entities:
++
+[source,java]
+----
+List<Person> allPersons = Person.listAll();
+----
+
+* Find a specific person by ID:
++
+[source,java]
+----
+person = person.findById(personId);
+----
+
+* Find a specific person by ID using the `Optional` class:
++
+[source,java]
+----
+Optional<Person> optional = person.findByIdOptional(personId);
+person = optional.orElseThrow(() -> new NotFoundException());
+----
+
+
+
+* Find all living persons:
++
+[source,java]
+----
+List<Person> livingPersons = person.list("status", Status.Alive);
+----
+
+* Count all persons:
++
+[source,java]
+----
+long countAll = person.count();
+----
+
+* Count all living persons:
++
+[source,java]
+----
+long countAlive = person.count("status", Status.Alive);
+----
+
+
+* Delete all living persons:
++
+[source,java]
+----
+person.delete("status", Status.Alive);
+----
+
+
+
+* Delete all persons:
++
+[source,java]
+----
+person.deleteAll();
+----
+
+* Delete by ID:
++
+[source,java]
+----
+boolean deleted = person.deleteById(personId);
+----
+
+* Set the name of all living persons to Mortal:
++
+[source,java]
+----
+person.update("name = 'Mortal' where status = ?1", Status.Alive);
+----
+
+All `List` methods have equivalent `stream` methods, which requires a transaction to work as shown in the following example:
+
+[source,java]
+----
+Stream<Person> persons = personRepository.streamAll();
+List<String> namesButEmmanuels = persons
+    .map(p -> p.name.toLowerCase() )
+    .filter( n -> ! "emmanuel".equals(n) )
+    .collect(Collectors.toList());
+----
+
+
+
+
+
+
 === Using the Panache repository pattern
 Panache enables you to create entities that contain the model and repository in a single class. However, if you prefer to create a separate class for the model and a separate class for the repository and still have the other benefits of Panache, for example having the `getters` and `setter` automatically generate, you can use the repository pattern.
 
@@ -182,7 +316,7 @@ Panache enables you to create entities that contain the model and repository in 
     <dependency>
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-hibernate-orm-panache</artifactId>
-    </dependency>
+</dependencies>
 ----
 
 . Define entities as JPA entities. The following example defines the `Person` class as a JPA entity.
@@ -257,11 +391,10 @@ public long count(){
 }
 ----
 
-=== Pananche common operations
-This section lists common operations that you can use with your entity or repository. The active record pattern examples use a `Person` entity created from the `PanacheEntity` class. The repository pattern examples use a regular JPA `Person` entity and the `PersonRepository` created from the
-`PanacheRepository` class.
+=== Pananche repository pattern common operations
+This section lists common Panache repository pattern operations. These  examples use a regular JPA `Person` entity and the `PersonRepository` created from the `PanacheRepository` class.
 
-* Create a record (active record pattern and repository pattern):
+* Create a record:
 +
 [source,java]
 ----
@@ -272,14 +405,6 @@ person.status = Status.Alive;
 ----
 
 * Persist an entity:
-** Active record pattern:
-+
-[source,java]
-----
-person.persist(person);
-----
-
-** Repository pattern:
 +
 [source,java]
 ----
@@ -289,13 +414,6 @@ personRepository.persist(person);
 NOTE: After an entity is persisted, you do not need to explicitly save your entity. All changes are automatically persisted on transaction commit.
 
 * Verify that an entity is persisted:
-** Active record pattern:
-+
-[source,java]
-----
-if(person.isPersistent(person))
-----
-** Repository pattern:
 +
 [source,java]
 ----
@@ -303,14 +421,6 @@ if(personRepository.isPersistent(person))
 ----
 
 * Delete an entity:
-** Active record pattern:
-+
-[source,java]
-----
-person.delete(person);
-----
-
-** Repository pattern:
 +
 [source,java]
 ----
@@ -318,26 +428,12 @@ personRepository.delete(person);
 ----
 
 * Retrieve a list of all `Person` entities:
-** Active record pattern:
-+
-[source,java]
-----
-List<Person> allPersons = person.listAll();
-----
-** Repository pattern:
 +
 [source,java]
 ----
 List<Person> allPersons = personRepository.listAll();
 ----
 * Find a specific person by ID:
-** Active record pattern:
-+
-[source,java]
-----
-person = person.findById(personId);
-----
-** Repository pattern:
 +
 [source,java]
 ----
@@ -345,15 +441,6 @@ person = personRepository.findById(personId);
 ----
 
 * Find a specific person by ID using the `Optional` class:
-** Active record pattern:
-+
-[source,java]
-----
-Optional<Person> optional = person.findByIdOptional(personId);
-person = optional.orElseThrow(() -> new NotFoundException());
-----
-
-** Repository pattern:
 +
 [source,java]
 ----
@@ -362,13 +449,6 @@ person = optional.orElseThrow(() -> new NotFoundException());
 ----
 
 * Find all living persons:
-** Active record pattern:
-+
-[source,java]
-----
-List<Person> livingPersons = person.list("status", Status.Alive);
-----
-** Repository pattern:
 +
 [source,java]
 ----
@@ -376,13 +456,6 @@ List<Person> livingPersons = personRepository.list("status", Status.Alive);
 ----
 
 * Count all persons:
-** Active record pattern:
-+
-[source,java]
-----
-long countAll = person.count();
-----
-** Repository pattern:
 +
 [source,java]
 ----
@@ -390,13 +463,6 @@ long countAll = personRepository.count();
 ----
 
 * Count all living persons:
-** Active record pattern:
-+
-[source,java]
-----
-long countAlive = person.count("status", Status.Alive);
-----
-** Repository pattern:
 +
 [source,java]
 ----
@@ -404,13 +470,6 @@ long countAlive = personRepository.count("status", Status.Alive);
 ----
 
 * Delete all living persons:
-** Active record pattern:
-+
-[source,java]
-----
-person.delete("status", Status.Alive);
-----
-** Repository pattern:
 +
 [source,java]
 ----
@@ -419,13 +478,6 @@ personRepository.delete("status", Status.Alive);
 
 
 * Delete all persons:
-** Active record pattern:
-+
-[source,java]
-----
-person.deleteAll();
-----
-** Repository pattern:
 +
 [source,java]
 ----
@@ -433,13 +485,6 @@ personRepository.deleteAll();
 ----
 
 * Delete by ID:
-** Active record pattern:
-+
-[source,java]
-----
-boolean deleted = person.deleteById(personId);
-----
-** repository pattern:
 +
 [source,java]
 ----
@@ -447,13 +492,6 @@ boolean deleted = personRepository.deleteById(personId);
 ----
 
 * Set the name of all living persons to Mortal:
-** Active record pattern:
-+
-[source,java]
-----
-person.update("name = 'Mortal' where status = ?1", Status.Alive);
-----
-** Repository pattern:
 +
 [source,java]
 ----
@@ -471,17 +509,79 @@ List<String> namesButEmmanuels = persons
     .collect(Collectors.toList());
 ----
 
+
+
+
 == Hibernate ORM with Panache queries
 
 Hibernate Query Language (HQL) is a query language similar to Structured Query Language (SQL). However, HQL works with persistent objects and properties instead of tables and columns. For more information about HQL, see the "HQL and JPQL" section of the xref:https://docs.jboss.org/hibernate/orm/5.4/userguide/html_single/Hibernate_User_Guide.html[_Hibernate ORM User Guide_].
+
+
+=== Simplified Hibernate ORM with Panache queries
+You can use HQL to write queries for Hibernate ORM with Panache entities, as shown in the following example:
+
+[source,java]
+----
+Order.find("select distinct o from Order o left join fetch o.lineItems");
+Order.update("update from Person set name = 'Mortal' where status = ?", Status.Alive);
+----
+
+However, Hibernate ORM with Panache provides several HQL short cuts.
+
+.FROM
+In most cases, HQL `SELECT` statements are immediately followed by the `FROM` clause, for example `SELECT name FROM _ENTITY_NAME_`, where `_ENTITY_NAME_` is the name of a Java entity. However, if you do not include `FROM` in your HQL `SELECT` statement, Panache adds `FROM` in the following cases:
+
+[cols="30%,70%" options="header"]
+
+|===
+h|Statement starts with
+h|Statement expands to
+
+|`ORDER BY`
+|`FROM _ENTITY_NAME_ ORDER BY`
+
+| A single column name and a single parameter `_SINGLE_COLUMN_NAME_`
+|`FROM _ENTITY_NAME_ WHERE  _SINGLE_COLUMN_NAME_  =?`
+
+
+| A query string (_QUERY_STRING_)
+| `FROM _ENTITY_NAME_ WHERE  _QUERY_STRING_`
+
+
+|===
+
+
+.UPDATE
+
+If you do not include `UPDATE` in your HQL `SELECT` statement, Panache adds `UPDATE` in the following cases:
+
+[cols="30%,70%" options="header"]
+
+|===
+h|Statement starts with
+h|Statement expands to
+
+|`FROM _ENTITY_NAME_`
+|`UPDATE FROM _ENTITY_NAME_`
+
+| `set? _SINGLE_COLUMN_NAME_`, where  `_SINGLE_COLUMN_NAME_` is a single column name and a single parameter
+| `UPDATE FROM _ENTITY_NAME_ set _SINGLE_COLUMN_NAME_ =?`
+
+
+| `set? _QUERY_STRING_`, where  `_QUERY_STRING_`is a query string
+| `UPDATE FROM _ENTITY_NAME_ set _QUERY_STRING_`
+
+|===
+
+
 
 === PanacheQuery entity
 
 The `PanacheQuery` entity  abstracts the use of paging, getting the number of results, and operating on `List` or `Stream` methods. You can use the `PanacheQuery` entity  for paging and range-based queries.
 
 
-Only use `List` and `Stream` methods if your table contains small data sets. For large data
-sets, use the `Find` method equivalents, which return a `PanacheQuery` on which you can perform paging.
+Only use `list` and `stream` methods if your table contains small data sets. For large data
+sets, use the `find` method equivalents, which return a `PanacheQuery` on which you can perform paging.
 
 [WARNING]
 ====
@@ -508,7 +608,7 @@ PanacheQuery<Person> livingPersons = Person.find("status", Status.Alive);
 +
 [source,java]
 ----
-PanacheQuery<PersonRepository> livingPersons = Person.find("status", Status.Alive);
+PanacheQuery<PersonRepository> livingPersons = personRepository.find("status", Status.Alive);
 ----
 
 
@@ -531,7 +631,7 @@ List<Person> firstPage = livingPersons.list();
 +
 [source,java]
 ----
-List<Person.Repository> firstPage = livingPersons.list();
+List<Person> firstPage = livingPersons.list();
 ----
 
 * Retrieve the second page:
@@ -611,7 +711,7 @@ PanacheQuery<Person> livingPersons = Person.find("status", Status.Alive);
 +
 [source,java]
 ----
-PanacheQuery<PersonRepository> livingPersons = Person.find("status", Status.Alive);
+PanacheQuery<PersonRepository> livingPersons = personRepository.find("status", Status.Alive);
 ----
 
 * Specify a range from index 0 to index 24 (inclusive):
@@ -651,61 +751,6 @@ List<PersonRepository> secondRange = livingPersons.range(25, 49).list();
 ----
 
 
-=== Simplified Hibernate ORM with Panache queries
-You can use HQL to write queries for Hibernate ORM with Panache entities, as shown in the following example:
-
-[source,java]
-----
-Order.find("select distinct o from Order o left join fetch o.lineItems");
-Order.update("update from Person set name = 'Mortal' where status = ?", Status.Alive);
-----
-
-However, Hibernate ORM with Panache provides several HQL short cuts.
-
-.FROM
-In most cases, HQL `SELECT` statements are immediately followed by the `FROM` clause, for example `SELECT name FROM _ENTITY_NAME_`, where `_ENTITY_NAME_` is the name of a Java entity. However, if you do not include `FROM` in your HQL `SELECT` statement, Panache adds `FROM` in the following cases:
-
-[cols="30%,70%" options="header"]
-
-|===
-h|User entry
-h|Expanded entry
-
-|`ORDER BY`
-|`FROM _ENTITY_NAME_ ORDER BY`
-
-| A single column name and a single parameter `_SINGLE_COLUMN_NAME_`
-|`FROM _ENTITY_NAME_ WHERE  _SINGLE_COLUMN_NAME_  =?`
-
-
-| A query string (_QUERY_STRING_)
-| `FROM _ENTITY_NAME_ WHERE  _QUERY_STRING_`
-
-
-|===
-
-
-.UPDATE
-
-If you do not include `UPDATE` in your HQL `SELECT` statement, Panache adds `UPDATE` in the following cases:
-
-[cols="30%,70%" options="header"]
-
-|===
-h|User entry
-h|Expanded entry
-
-|`FROM _ENTITY_NAME_`
-|`UPDATE FROM _ENTITY_NAME_`
-
-| `set? _SINGLE_COLUMN_NAME_`, where  `_SINGLE_COLUMN_NAME_` is a single column name and a single parameter
-| `UPDATE FROM _ENTITY_NAME_ set _SINGLE_COLUMN_NAME_ =?`
-
-
-| `set? _QUERY_STRING_`, where  `_QUERY_STRING_`is a query string
-| `UPDATE FROM _ENTITY_NAME_ set _QUERY_STRING_`
-
-|===
 
 == Named queries
 
