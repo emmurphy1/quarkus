@@ -211,7 +211,7 @@ List<Person> allPersons = Person.listAll();
 +
 [source,java]
 ----
-person = person.findById(personId);
+person = Person.findById(personId);
 ----
 
 * Find a specific person by ID using the `Optional` class:
@@ -980,57 +980,44 @@ public class PersonRepository implements PanacheRepositoryBase<Person,Integer> {
 ====
 
 == Defining entities in external projects or JAR files
-//Added content from https://quarkus.io/guides/cdi-reference#how-to-generate-a-jandex-index. This module could be shared.
 
-Hibernate ORM with Panache relies on Java `bytecode` enhancements that are added to your entities at compile time. If you define your entities in the project where you build your {ProductName} application, the  `bytecode` enhancements are added correctly. If the entities come from external projects or JAR files, use Jandex to index your JAR file to ensure that it is treated like a {ProductName} application library. Doing this enables {ProductName} to index and enhance your entities as if they were inside the current project.
+Hibernate ORM with Panache relies on Java `bytecode` enhancements that are added to your entities at compile time. It attempts to identity archives with Panache entities and consumers of Panache entities by the presence of the `META-INF/panache-archive.marker` marker file . Panache includes an annotation processor that automatically creates this file in archives that depend on Panache, even if that dependency is indirect.
+
+NOTE: If you have disabled annotation processors, you might need to create the `META-INF/panache-archive.marker` file manually.
+
+If your project includes the `jpa-modelgen` annotation processor you must override it or the Panache annotation processor will be excluded.
 
 .Prerequisites
 * A {ProductName} Maven project that uses the Hibernate ORM with Panache extension is available.
 
 .Procedure
-To generate the Jandex index, use one of the following methods:
+To override the `jpa-modelgen` annotation processor, do one of the following tasks:
 
-* Add the following dependency to your project's `pom.xml` file:
+* Create the `META-INF/panache-archive.marker` file manually.
+* Add the `quarkus-panache-common` annotation processor to your project's `pom.xml` file, as shown in the following example:
 +
 [source,xml]
 ----
-<build>
-  <plugins>
-    <plugin>
-      <groupId>org.jboss.jandex</groupId>
-      <artifactId>jandex-maven-plugin</artifactId>
-      <version>1.0.7</version>
-      <executions>
-        <execution>
-          <id>make-index</id>
-          <goals>
-            <goal>jandex</goal>
-          </goals>
-        </execution>
-      </executions>
-    </plugin>
-  </plugins>
-</build>
+<plugin>
+    <artifactId>maven-compiler-plugin</artifactId>
+    <version>${compiler-plugin.version}</version>
+    <configuration>
+      <annotationProcessorPaths>
+        <annotationProcessorPath>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate-jpamodelgen</artifactId>
+          <version>${hibernate.version}</version>
+        </annotationProcessorPath>
+        <annotationProcessorPath>
+          <groupId>io.quarkus</groupId>
+          <artifactId>quarkus-panache-common</artifactId>
+          <version>${quarkus.platform.version}</version>
+        </annotationProcessorPath>
+      </annotationProcessorPaths>
+    </configuration>
+</plugin>
 ----
 
-* Add `quarkus.index-dependency` entries to your `application.properties` file, where `_NAME_` is the name of the dependency,`_GROUP_ID_` is the group ID for that dependency, `_ARTIFACT_ID` is the artifact ID for that dependency, and `_CLASSIFIER_` is the dependency classifier:
-+
-[source,properties]
-----
-quarkus.index-dependency._NAME_.group-id=_GROUP_ID_
-quarkus.index-dependency._NAME_.artifact-id=<_ARTIFACT-ID_
-quarkus.index-dependency._NAME_.classifier=_CLASSIFIER_
-----
-+
-NOTE: The `quarkus.index-dependency._NAME_.classifier=_CLASSIFIER_` line is optional.
-+
-For example, the following entries ensure that the `org.acme:acme-api` dependency is indexed:
-+
-[source,properties]
-----
-quarkus.index-dependency.acme.group-id=org.acme
-quarkus.index-dependency.acme.artifact-id=acme-api
-----
 
 == Mocking
 
