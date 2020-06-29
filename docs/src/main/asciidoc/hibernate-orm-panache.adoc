@@ -8,8 +8,8 @@ https://github.com/quarkusio/quarkus/tree/master/docs/src/main/asciidoc
 
 include::./attributes.adoc[]
 :config-file: application.properties
-//:COMM:
-:ENT:
+:COMM:
+//:ENT:
 
 ifdef::ENT[]
 As a Java developer, you can use Hibernate ORM with Panache to simplify persistence with your {ProductName} applications.
