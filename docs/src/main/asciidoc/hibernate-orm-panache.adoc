@@ -288,10 +288,6 @@ List<String> namesButEmmanuels = persons
 ----
 
 
-
-
-
-
 === Using the Panache repository pattern
 Panache enables you to create entities that contain the model and repository in a single class. However, if you prefer to create a separate class for the model and a separate class for the repository and still have the other benefits of Panache, for example having the `getters` and `setter` automatically generate, you can use the repository pattern.
 
@@ -390,7 +386,7 @@ This section lists common Panache repository pattern operations. These  examples
 [source,java]
 ----
 Person person = new Person();
-person.setName = "Stef";
+person.setName("Stef");
 person.setBirth(LocalDate.of(1910, Month.FEBRUARY, 1));
 person.setStatus(Status.Alive);
 ----
