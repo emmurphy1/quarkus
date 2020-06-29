@@ -676,7 +676,7 @@ return PersonRepository.find("status", Status.Alive)
 ----
 
 ==== Examples of queries that use a range of values
-These examples show how you can use a range of values in your Panache queries. The active record pattern examples use a `Person` entity created from the `PanacheEntity` class. The repository pattern examples use a regular JPA `Person` entity and the `PersonRepository` created from the
+These examples show how you can use a range of values in your Panache queries. The active record pattern examples use a `Person` entity which extends the `PanacheEntity` class. The repository pattern examples use a regular JPA `Person` entity and the `PersonRepository` which extends the
 `PanacheRepository` class.
 
 
