@@ -228,21 +228,21 @@ person = optional.orElseThrow(() -> new NotFoundException());
 +
 [source,java]
 ----
-List<Person> livingPersons = person.list("status", Status.Alive);
+List<Person> livingPersons = Person.list("status", Status.Alive);
 ----
 
 * Count all persons:
 +
 [source,java]
 ----
-long countAll = person.count();
+long countAll = Person.count();
 ----
 
 * Count all living persons:
 +
 [source,java]
 ----
-long countAlive = person.count("status", Status.Alive);
+long countAlive = Person.count("status", Status.Alive);
 ----
 
 
@@ -250,7 +250,7 @@ long countAlive = person.count("status", Status.Alive);
 +
 [source,java]
 ----
-person.delete("status", Status.Alive);
+Person.delete("status", Status.Alive);
 ----
 
 
@@ -259,21 +259,21 @@ person.delete("status", Status.Alive);
 +
 [source,java]
 ----
-person.deleteAll();
+Person.deleteAll();
 ----
 
 * Delete by ID:
 +
 [source,java]
 ----
-boolean deleted = person.deleteById(personId);
+boolean deleted = Person.deleteById(personId);
 ----
 
 * Set the name of all living persons to Mortal:
 +
 [source,java]
 ----
-person.update("name = 'Mortal' where status = ?1", Status.Alive);
+Person.update("name = 'Mortal' where status = ?1", Status.Alive);
 ----
 
 All `List` methods have equivalent `stream` methods, which requires a transaction to work as shown in the following example:
@@ -382,7 +382,7 @@ public long count(){
 ----
 
 === Panache repository pattern common operations
-This section lists common Panache repository pattern operations. These  examples use a regular JPA `Person` entity and the `PersonRepository` created from the `PanacheRepository` class.
+This section lists common Panache repository pattern operations. These  examples use a regular JPA `Person` entity and the `PersonRepository` class which implements `PanacheRepository` interface.
 
 * Create an entity:
 +
@@ -390,8 +390,8 @@ This section lists common Panache repository pattern operations. These  examples
 ----
 Person person = new Person();
 person.setName = "Stef";
-person.setBirth = LocalDate.of(1910, Month.FEBRUARY, 1);
-person.setStatus = Status.Alive;
+person.setBirth(LocalDate.of(1910, Month.FEBRUARY, 1));
+pperson.setStatus(Status.Alive);
 ----
 
 * Persist an entity:
@@ -582,7 +582,7 @@ You cannot mix ranges and pages. If your query uses a range, any methods that de
 * For a complete list of  `PanacheQuery` methods, see the https://javadoc.io/doc/io.quarkus/quarkus-hibernate-orm-panache/latest/io/quarkus/hibernate/orm/panache/PanacheQuery.html[_PanacheQuery Class_] page.
 
 ==== Examples of queries that use paging
-These examples show how you can use paging in your Panache queries. The active record pattern examples use a `Person` entity created from the `PanacheEntity` class. The repository pattern examples use a regular JPA `Person` entity and the `PersonRepository` created from the
+These examples show how you can use paging in your Panache queries. The active record pattern examples use a `Person` entity which extends the `PanacheEntity` class. The repository pattern examples use a regular JPA `Person` entity and the `PersonRepository` class which extends the
 `PanacheRepository` class.
 
 
@@ -886,12 +886,12 @@ The following example demonstrates the use of the flush method to allow a specif
 @Transactional
 public void create(Parameter parameter){
     try {
-    //Here the persistAndFlush() shorthand method is used on a Panache repository to persist to database then flush the changes.
+// Here the persistAndFlush() shorthand method is used on a Panache repository to persist to database then flush the changes.
         return parameterRepository.persistAndFlush(parameter);
     }
     catch(PersistenceException pe){
         LOG.error("Unable to create the parameter", pe);
-        //In case of error, the data is saved to disk.
+        // In case of error, the data is saved to disk.
         diskPersister.save(parameter);
     }
 }
