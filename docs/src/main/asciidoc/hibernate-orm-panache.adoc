@@ -39,11 +39,11 @@ endif::COMM[]
 For an example of a completed {ProductName} Maven project that uses the Panache extension, see the https://github.com/quarkusio/quarkus-quickstarts/tree/master/hibernate-orm-panache-quickstart[Hibernate ORM Panache Quickstart].
 
 
-== Hibernate ORM with the {ProductName} Panache JPA extension
+== Hibernate ORM with Panache extension
 
-Hibernate ORM is the most widely used JPA implementation. It provides all of the features of an ORM but it is not easy use Hibernate for the simple operations that make up the majority of persistence coding requirements.  For a simple implementation with the most common data mappings you can use the {ProductName} Panache JPA extension to write more concise code.
+Hibernate ORM is the most widely used JPA implementation. It provides all of the features of an ORM but it is not easy use Hibernate for the simple operations that make up the majority of persistence coding requirements.  For a simple implementation with the most common data mappings you can use the Hibernate ORM with Panache extension to write more concise code.
 
-The {ProductName} Panache JPA extension eliminates the following Hibernate ORM issues:
+The Hibernate ORM with Panache extension eliminates the following Hibernate ORM issues:
 
 * *Duplicate ID logic*
 +
@@ -112,7 +112,7 @@ public class Person extends PanacheEntity {
 }
 ----
 . Add any additional accessors. The following example adds an accessor that returns `name` as uppercase in the model and an accessor that stores all names in lowercase in the database.
-//COMMENT: Is there a different between 'in the model' and 'in the database'?
+
 +
 [source,java]
 ----
@@ -218,7 +218,7 @@ person = Person.findById(personId);
 +
 [source,java]
 ----
-Optional<Person> optional = person.findByIdOptional(personId);
+Optional<Person> optional = Person.findByIdOptional(personId);
 person = optional.orElseThrow(() -> new NotFoundException());
 ----
 
@@ -280,7 +280,7 @@ All `List` methods have equivalent `stream` methods, which requires a transactio
 
 [source,java]
 ----
-Stream<Person> persons = personRepository.streamAll();
+Stream<Person> persons = Person.streamAll();
 List<String> namesButEmmanuels = persons
     .map(p -> p.name.toLowerCase() )
     .filter( n -> ! "emmanuel".equals(n) )
@@ -306,6 +306,7 @@ Panache enables you to create entities that contain the model and repository in 
     <dependency>
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-hibernate-orm-panache</artifactId>
+    </dependency>
 </dependencies>
 ----
 
@@ -382,7 +383,7 @@ public long count(){
 ----
 
 === Panache repository pattern common operations
-This section lists common Panache repository pattern operations. These  examples use a regular JPA `Person` entity and the `PersonRepository` class which implements `PanacheRepository` interface.
+This section lists common Panache repository pattern operations. These  examples use a regular JPA `Person` entity and the `PersonRepository` class which implements the `PanacheRepository` interface.
 
 * Create an entity:
 +
@@ -391,7 +392,7 @@ This section lists common Panache repository pattern operations. These  examples
 Person person = new Person();
 person.setName = "Stef";
 person.setBirth(LocalDate.of(1910, Month.FEBRUARY, 1));
-pperson.setStatus(Status.Alive);
+person.setStatus(Status.Alive);
 ----
 
 * Persist an entity:
