@@ -908,7 +908,7 @@ public class PersonEndpoint {
     @Transactional
     public Person findByIdForUpdate(Long id){
         Person p = Person.findById(id, LockModeType.PESSIMISTIC_WRITE);
-        //Perform some action.The lock will be released when the transaction ends.
+        // Perform some action.The lock will be released when the transaction ends.
         return person;
     }
 
@@ -925,7 +925,7 @@ public class PersonEndpoint {
     @Transactional
     public Person findByNameForUpdate(String name){
         Person p = Person.find("name", name).withLock(LockModeType.PESSIMISTIC_WRITE).findOne();
-        //Perform some action. The lock will be released when the transaction ends.
+        // Perform some action. The lock will be released when the transaction ends.
         return person;
     }
 
