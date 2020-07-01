@@ -26,6 +26,7 @@ endif::COMM[]
 NOTE: If you not define a JDBC driver, Hibernate ORM with Panache will not work.
 
 ifdef::ENT[]
+// Note that before this document is published, the community documents linked below must be productized and the links replaced with the product document links.
 * For information about creating a {ProductName} Maven project, see https://access.redhat.com/documentation/en-us///red_hat_build_of_quarkus/{ProductVersion}/html-single/creating_quarkus_applications_with_apache_maven/[_Creating Quarkus applications with Apache Maven_].
 endif::ENT[]
 
